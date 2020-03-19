@@ -1,9 +1,12 @@
 import 'dart:io';
 import 'package:path/path.dart';
-import 'package:qrapp/src/models/scan_model.dart';
 
 import 'package:sqflite/sqflite.dart';
 import 'package:path_provider/path_provider.dart';
+
+import 'package:qrapp/src/models/scan_model.dart';
+export 'package:qrapp/src/models/scan_model.dart';
+
 
 class DBProvider {
   //aplicando el patron singleton
@@ -75,6 +78,7 @@ class DBProvider {
 
     return list;
   }
+
   Future<List<ScanModel>> getScansPorTipo(String tipo) async {
     final db = await database;
 
@@ -86,5 +90,32 @@ class DBProvider {
     return list;
   }
 
+  //actualizar los resigstros
 
+  updateScanN(ScanModel nuevoScan) async {
+
+    final db = await database;
+
+    final res = await db.update('scans', nuevoScan.toJson(), where: 'id= ? ',whereArgs:[nuevoScan.id] );
+
+    return res;
+  }
+
+  // Eliminar los registros
+
+  deleteScan(int id) async{
+    final db= await database;
+    final res = await db.delete('scans',where: 'id=?',whereArgs: [id]);
+
+    return res;
+  }
+
+  // Eliminar los registros
+
+  deleteAll() async{
+    final db= await database;
+    final res = await db.rawDelete('DELETE FROM scans');
+
+    return res;
+  }
 }

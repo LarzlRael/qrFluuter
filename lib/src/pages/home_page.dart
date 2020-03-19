@@ -1,9 +1,15 @@
+
+import 'dart:io';
+
 import 'package:flutter/material.dart';
+import 'package:qrapp/src/bloc/scans_bloc.dart';
+import 'package:qrapp/src/models/scan_model.dart';
 import 'package:qrapp/src/pages/direcciones_page.dart';
 import 'package:qrapp/src/pages/mapas_page.dart';
 
 //modulo del barcode_scanner
-import 'package:barcode_scan/barcode_scan.dart';
+//import 'package:barcode_scan/barcode_scan.dart';
+import 'package:qrapp/src/utils/utils.dart' as utils;
 
 class Home extends StatefulWidget {
   @override
@@ -13,7 +19,8 @@ class Home extends StatefulWidget {
 class _HomeState extends State<Home> {
   //metodo para poder cambiar de pagina
 
-  int current_index = 0;
+  final scanBloc = new ScansBloc();
+  int currentIndex = 0;
 
   @override
   Widget build(BuildContext context) {
@@ -24,11 +31,12 @@ class _HomeState extends State<Home> {
             //creando el icono que se muestar a un costa del app bar
             IconButton(
               icon: Icon(Icons.delete_forever),
-              onPressed: () {},
+              // Evento para borrar todos los registros que nos queda
+              onPressed: scanBloc.borrarScansTodos,
             ),
           ],
         ),
-        body: _callPage(current_index),
+        body: _callPage(currentIndex),
         bottomNavigationBar: _crearBotonNavigationBar(),
 
         //ubicando el boton
@@ -43,11 +51,11 @@ class _HomeState extends State<Home> {
 
   Widget _crearBotonNavigationBar() {
     return BottomNavigationBar(
-      currentIndex: current_index,
+      currentIndex: currentIndex,
       //recibe la posicion del elemente segun el tap que hizo
       onTap: (index) {
         setState(() {
-          current_index = index;
+          currentIndex = index;
         });
       },
       items: [
@@ -77,19 +85,34 @@ class _HomeState extends State<Home> {
 
   _scanQR() async {
     //este paquete usar la camara y registrar el string
+
     //geo  = geo:40.690399745185275,-73.94826307734378
-    //h url  = ttp://google.com/
-    String futureString = '';
+    //url  = http://google.com/
+    String futureString = 'http://google.com/';
+    String futureString2 = 'geo:40.690399745185275,-73.94826307734378';
     // try {
     //   futureString = await BarcodeScanner.scan();
     // } catch (e) {
     //   futureString = e.toString();
     // }
- 
+
     // print('Futere String : $futureString');
 
-    // if(futureString!=null){
-    //   print('Tenemos informacion');
-    // }
+    if (futureString != null) {
+      // print('Tenemos informacion');
+      final scan = ScanModel(valor: futureString);
+      final scan2 = ScanModel(valor: futureString2);
+
+      scanBloc.agregarScan(scan);
+      scanBloc.agregarScan(scan2);
+      
+      if(Platform.isIOS){
+        Future.delayed(Duration(milliseconds: 750),(){
+          utils.abrirScan(scan);
+        });
+      }
+
+      utils.abrirScan(scan);
+    }
   }
 }
